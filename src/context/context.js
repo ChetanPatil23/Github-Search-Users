@@ -29,15 +29,39 @@ const GithubProvider = ({ children }) => {
       .catch((err) => console.log(err));
   };
 
-  function toggleError(show = "false", msg = "") {
+  function toggleError(show = false, msg = "") {
     setError({ show, msg });
   }
+
+  const fetchUser = async (user) => {
+    setLoading(true);
+    const response = await axios(`${rootUrl}/users/${user}`).catch((err) =>
+      //   toggleError(true, "No such user found")
+      console.log(err)
+    );
+
+    if (response) {
+      setGithubUser(response.data);
+    } else {
+      toggleError(true, "No such user found");
+    }
+    setLoading(false);
+    checkRequests();
+  };
 
   useEffect(checkRequests, []);
 
   return (
     <GithubContext.Provider
-      value={{ githubUser, repos, followers, requests, error }}
+      value={{
+        githubUser,
+        repos,
+        followers,
+        requests,
+        error,
+        fetchUser,
+        loading,
+      }}
     >
       {children}
     </GithubContext.Provider>
