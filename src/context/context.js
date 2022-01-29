@@ -35,6 +35,7 @@ const GithubProvider = ({ children }) => {
 
   const fetchUser = async (user) => {
     setLoading(true);
+    toggleError();
     const response = await axios(`${rootUrl}/users/${user}`).catch((err) =>
       //   toggleError(true, "No such user found")
       console.log(err)
@@ -42,6 +43,13 @@ const GithubProvider = ({ children }) => {
 
     if (response) {
       setGithubUser(response.data);
+      const { login, followers_url } = response.data;
+      axios(`${rootUrl}/users/${login}/repos?per_page=100`).then((response) =>
+        setRepos(response.data)
+      );
+      axios(`${followers_url}?per_page=100`).then((response) =>
+        setFollowers(response.data)
+      );
     } else {
       toggleError(true, "No such user found");
     }
